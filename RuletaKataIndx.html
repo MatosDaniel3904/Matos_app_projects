@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Kata - Estilo Madera</title>
+    <style>
+        /* Estilos de fondo y tipografía */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #2c1e14;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #f3e5ab;
+        }
+
+        h1 { margin-bottom: 20px; text-shadow: 2px 2px 4px #000; }
+
+        /* Contenedor de la ruleta con efecto madera */
+        .wheel-container {
+            position: relative;
+            padding: 15px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #8b4513, #3e1f0a);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 10px #000;
+            border: 8px solid #5d2e0c;
+        }
+
+        canvas {
+            border-radius: 50%;
+            display: block;
+        }
+
+        /* Marcador (Flecha) */
+        .arrow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; 
+            height: 0; 
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #d4af37; /* Color dorado */
+            z-index: 10;
+        }
+
+        /* Botón de giro */
+        #spin-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(#a0522d, #5d2e0c);
+            color: white;
+            border: 2px solid #f3e5ab;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        #spin-btn:hover { background: #8b4513; transform: scale(1.05); }
+        #spin-btn:active { transform: scale(0.95); }
+
+        /* Resultado */
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            height: 30px;
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Ruleta de Katas</h1>
+
+    <div class="wheel-container">
+        <div class="arrow"></div>
+        <canvas id="wheel" width="500" height="500"></canvas>
+    </div>
+
+    <div id="result">¡Haz clic para girar!</div>
+    <button id="spin-btn">GIRAR RULETA</button>
+
+    <script>
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const btn = document.getElementById('spin-btn');
+        const resultDiv = document.getElementById('result');
+
+        const opciones = [
+            "Jion", "Kanku-Dai","Bassai-Dai","Empi","Jitte","Jiin","Sochin","Mekio",
+            "Kanku-Sho","Tekki Shodan","Tekki Nidan","Tekki Sandan","Bassai-Sho",
+            "Chintte","Gankaku","Wankan","Unsu","Gojushiho-Sho","Gojushiho-Dai","Hangetsu"
+        ];
+
+        const numOpciones = opciones.length;
+        const arcSize = (2 * Math.PI) / numOpciones;
+        let startAngle = 0;
+        let spinTimeout = null;
+        let spinAngleStart = 10;
+        let spinTime = 0;
+        let spinTimeTotal = 0;
+
+        // Colores alternos para la madera
+        const colors = ["#5d2e0c", "#8b4513", "#a0522d", "#6b3e23"];
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, 500, 500);
+            
+            opciones.forEach((texto, i) => {
+                const angle = startAngle + i * arcSize;
+                
+                // Dibujar segmento
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.beginPath();
+                ctx.arc(250, 250, 240, angle, angle + arcSize, false);
+                ctx.lineTo(250, 250);
+                ctx.fill();
+                ctx.strokeStyle = "#402205";
+                ctx.stroke();
+
+                // Dibujar texto
+                ctx.save();
+                ctx.fillStyle = "#f3e5ab";
+                ctx.translate(250 + Math.cos(angle + arcSize/2) * 180, 250 + Math.sin(angle + arcSize/2) * 180);
+                ctx.rotate(angle + arcSize/2 + Math.PI/2);
+                ctx.font = 'bold 12px Arial';
+                ctx.fillText(texto, -ctx.measureText(texto).width/2, 0);
+                ctx.restore();
+            });
+        }
+
+        function rotateWheel() {
+            spinTime += 30;
+            if (spinTime >= spinTimeTotal) {
+                stopRotateWheel();
+                return;
+            }
+            const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+            startAngle += (spinAngle * Math.PI / 180);
+            drawWheel();
+            spinTimeout = setTimeout(rotateWheel, 30);
+        }
+
+        function stopRotateWheel() {
+            clearTimeout(spinTimeout);
+            const degrees = startAngle * 180 / Math.PI + 90;
+            const arcd = arcSize * 180 / Math.PI;
+            const index = Math.floor((360 - (degrees % 360)) / arcd);
+            resultDiv.innerHTML = "Resultado: " + opciones[index];
+            btn.disabled = false;
+        }
+
+        function easeOut(t, b, c, d) {
+            const ts = (t /= d) * t;
+            const tc = ts * t;
+            return b + c * (tc + -3 * ts + 3 * t);
+        }
+
+        btn.addEventListener('click', () => {
+            btn.disabled = true;
+            resultDiv.innerHTML = "Girando...";
+            spinAngleStart = Math.random() * 10 + 10;
+            spinTime = 0;
+            spinTimeTotal = Math.random() * 3 + 4 * 1000;
+            rotateWheel();
+        });
+
+        drawWheel();
+    </script>
+</body>
+</html>
