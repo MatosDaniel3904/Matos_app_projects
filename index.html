@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruleta de Kata - Estilo Madera</title>
+    <title>Ruleta de Kata </title>
    <style>
     body {
         display: flex;
@@ -98,10 +98,11 @@
         const resultDiv = document.getElementById('result');
 
         const opciones = [
-            "Jion", "Kanku-Dai","Bassai-Dai","Empi","Jitte","Jiin","Sochin","Mekio",
-            "Kanku-Sho","Tekki Shodan","Tekki Nidan","Tekki Sandan","Bassai-Sho",
-            "Chintte","Gankaku","Wankan","Unsu","Gojushiho-Sho","Gojushiho-Dai","Hangetsu"
-        ];
+    "Jion", "Kanku-Dai", "Bassai-Dai", "Empi", "Jitte", "Jiin", "Sochin", "Mekio",
+    "Kanku-Sho", "Tekki Shodan", "Tekki Nidan", "Tekki Sandan", "Bassai-Sho",
+    "Chintte", "Gankaku", "Wankan", "Unsu", "Gojushiho-Sho", "Gojushiho-Dai", 
+    "Hangetsu", "Heian Shodan", "Heian Nidan", "Heian Sandan", "Heian Yondan", "Heian Godan"
+];
 
         const numOpciones = opciones.length;
         const arcSize = (2 * Math.PI) / numOpciones;
@@ -134,7 +135,7 @@
                 ctx.fillStyle = "#f3e5ab";
                 ctx.translate(250 + Math.cos(angle + arcSize/2) * 180, 250 + Math.sin(angle + arcSize/2) * 180);
                 ctx.rotate(angle + arcSize/2 + Math.PI/2);
-                ctx.font = 'bold 12px Arial';
+                ctx.font = 'bold 11px Arial';
                 ctx.fillText(texto, -ctx.measureText(texto).width/2, 0);
                 ctx.restore();
             });
